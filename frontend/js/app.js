@@ -74,28 +74,50 @@ analyzeButton.addEventListener("click", async () => {
   }
 });
 
+// Small helper: never print null/undefined/empty values to the UI.
+function displayValue(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Not detected";
+  }
+  return value;
+}
+
 function renderResults(data) {
-  document.getElementById("score").textContent = `${data.analysis.score}/100`;
-  document.getElementById("skillsCount").textContent = data.resume.skills.length;
-  document.getElementById("wordCount").textContent = data.analysis.word_count;
-  document.getElementById("sectionCount").textContent = data.analysis.detected_sections.length;
+  const resume = data.resume;
+  const candidate = resume.candidate || {};
+  const score = resume.score || { total: 0, breakdown: {} };
+  const breakdown = score.breakdown || {};
 
-  document.getElementById("candidateName").textContent = data.resume.name || "Not detected";
-  document.getElementById("candidateEmail").textContent = data.resume.email || "Not detected";
-  document.getElementById("candidatePhone").textContent = data.resume.phone || "Not detected";
+  // --- Metric cards ---
+  document.getElementById("score").textContent = `${score.total}/100`;
+  document.getElementById("skillsCount").textContent = resume.skills.length;
+  document.getElementById("wordCount").textContent = resume.word_count;
+  document.getElementById("sectionCount").textContent = resume.sections.length;
 
+  // --- Candidate info ---
+  document.getElementById("candidateName").textContent = displayValue(candidate.name);
+  document.getElementById("candidateEmail").textContent = displayValue(candidate.email);
+  document.getElementById("candidatePhone").textContent = displayValue(candidate.phone);
+
+  // --- Skills chips ---
   const skillsList = document.getElementById("skillsList");
   skillsList.innerHTML = "";
 
-  if (!data.resume.skills.length) {
+  if (!resume.skills.length) {
     skillsList.innerHTML = '<span class="empty">No skills detected</span>';
-    return;
+  } else {
+    resume.skills.forEach(skill => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = skill;
+      skillsList.appendChild(chip);
+    });
   }
 
-  data.resume.skills.forEach(skill => {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-    chip.textContent = skill;
-    skillsList.appendChild(chip);
-  });
+  // --- Score breakdown ---
+  document.getElementById("scoreContact").textContent = displayValue(breakdown.contact_information);
+  document.getElementById("scoreSections").textContent = displayValue(breakdown.sections);
+  document.getElementById("scoreSkills").textContent = displayValue(breakdown.skills);
+  document.getElementById("scoreProjects").textContent = displayValue(breakdown.projects_or_experience);
+  document.getElementById("scoreCerts").textContent = displayValue(breakdown.certifications_or_achievements);
 }

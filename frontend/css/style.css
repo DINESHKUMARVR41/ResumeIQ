@@ -73,6 +73,9 @@ nav a:hover { color: var(--text); }
 .candidate-info p { display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid var(--border); gap:20px; }
 .candidate-info span { color:var(--muted); }
 .candidate-info b { text-align:right; overflow-wrap:anywhere; }
+.score-breakdown p { display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid var(--border); gap:20px; }
+.score-breakdown span { color:var(--muted); }
+.score-breakdown b { color:#8ef0c2; }
 .chips { display:flex; flex-wrap:wrap; gap:8px; }
 .chip { padding:7px 11px; border:1px solid rgba(139,92,246,.35); background:rgba(139,92,246,.1); border-radius:99px; color:#c9b9ff; font-size:13px; }
 .empty { color:var(--muted); }
