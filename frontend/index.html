@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeIQ | AI Resume Intelligence</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="brand" href="#">Resume<span>IQ</span></a>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="nav-button">Get Started</button>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">AI RESUME INTELLIGENCE</p>
+        <h1>Turn your resume into your <span>career advantage.</span></h1>
+        <p class="hero-text">
+          Upload your resume and get a clear foundation for intelligent
+          resume analysis, skill insights, and career recommendations.
+        </p>
+        <a class="primary-button" href="#upload">Analyze Resume →</a>
+      </div>
+
+      <div class="hero-card">
+        <div class="mini-label">RESUMEIQ ENGINE</div>
+        <div class="score-preview">AI</div>
+        <div class="preview-row"><span>Resume Parsing</span><b>Ready</b></div>
+        <div class="preview-row"><span>Skill Analysis</span><b>Ready</b></div>
+        <div class="preview-row"><span>ATS Analysis</span><b>Coming next</b></div>
+      </div>
+    </section>
+
+    <section id="upload" class="upload-section">
+      <div class="section-heading">
+        <p class="eyebrow">START ANALYSIS</p>
+        <h2>Upload your resume</h2>
+        <p>PDF files only. Your analysis will appear here after processing.</p>
+      </div>
+
+      <label class="drop-zone" id="dropZone" for="resumeInput">
+        <div class="upload-icon">↑</div>
+        <h3>Drop your resume here</h3>
+        <p>or click to browse your PDF</p>
+        <input id="resumeInput" type="file" accept=".pdf,application/pdf" hidden>
+        <span class="file-name" id="fileName">No file selected</span>
+      </label>
+
+      <button class="primary-button analyze-button" id="analyzeButton" disabled>
+        Analyze Resume
+      </button>
+      <p class="status" id="status"></p>
+    </section>
+
+    <section id="analysis" class="dashboard">
+      <div class="section-heading">
+        <p class="eyebrow">ANALYSIS DASHBOARD</p>
+        <h2>Your resume intelligence</h2>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric-card"><span>Resume Score</span><strong id="score">--</strong><small>Content quality</small></article>
+        <article class="metric-card"><span>Skills Found</span><strong id="skillsCount">--</strong><small>Detected skills</small></article>
+        <article class="metric-card"><span>Words</span><strong id="wordCount">--</strong><small>Resume content</small></article>
+        <article class="metric-card"><span>Sections</span><strong id="sectionCount">--</strong><small>Detected sections</small></article>
+      </div>
+
+      <div class="result-grid">
+        <article class="panel">
+          <div class="panel-title"><h3>Candidate</h3><span>Parsed data</span></div>
+          <div class="candidate-info">
+            <p><span>Name</span><b id="candidateName">Not analyzed</b></p>
+            <p><span>Email</span><b id="candidateEmail">Not analyzed</b></p>
+            <p><span>Phone</span><b id="candidatePhone">Not analyzed</b></p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title"><h3>Skills</h3><span>Detected</span></div>
+          <div class="chips" id="skillsList"><span class="empty">No analysis yet</span></div>
+        </article>
+      </div>
+
+      <article class="panel processing">
+        <div class="panel-title"><h3>Processing pipeline</h3><span>ResumeIQ</span></div>
+        <div class="pipeline">
+          <div class="pipeline-step"><i>01</i><span>PDF Extraction</span><b>Ready</b></div>
+          <div class="pipeline-step"><i>02</i><span>Resume Parsing</span><b>Ready</b></div>
+          <div class="pipeline-step"><i>03</i><span>Resume Analysis</span><b>Ready</b></div>
+          <div class="pipeline-step"><i>04</i><span>Skill Intelligence</span><b>Next</b></div>
+          <div class="pipeline-step"><i>05</i><span>ATS Evaluation</span><b>Planned</b></div>
+          <div class="pipeline-step"><i>06</i><span>AI Recommendations</span><b>Planned</b></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="about" class="about">
+      <p class="eyebrow">THE PROJECT</p>
+      <h2>Built to become an intelligent career companion.</h2>
+      <p>
+        ResumeIQ starts with a clean resume-processing foundation.
+        Advanced AI, job matching, ATS analysis, and agent workflows
+        will be added as separate modules.
+      </p>
+    </section>
+  </main>
+
+  <footer>ResumeIQ · AI Resume Intelligence</footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
