@@ -114,36 +114,41 @@ The assistant uses the uploaded resume as context when generating responses.
 ## 🏗️ System Architecture
 
 ```text
-User
- │
- ▼
-Frontend
-HTML + CSS + Vanilla JavaScript
- │
- ▼
-FastAPI Backend
- │
- ├── PDF Extraction
- │
- ├── Resume Parser
- │
- ├── Resume Scoring
- │
- ├── ATS Matcher
- │
- ├── Skill Gap Analyzer
- │
- ├── Career Recommendation Engine
- │
- ├── Gemini Career Intelligence
- │
- └── Groq AI Assistant
-
- 🛠️ Technology Stack
+                         User
+                           │
+                           ▼
+              HTML + CSS + JavaScript
+                       Frontend
+                           │
+                           ▼
+                    FastAPI Backend
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+    PDF Extraction   Resume Parser     Resume Scoring
+          │                │                │
+          └────────────────┼────────────────┘
+                           │
+                           ▼
+                    ATS Matcher
+                           │
+                           ▼
+                  Skill Gap Analyzer
+                           │
+                           ▼
+             Career Recommendation Engine
+                           │
+                           ▼
+                 Gemini AI Intelligence
+                           │
+                           ▼
+                   Groq AI Assistant
+🛠️ Technology Stack
 Frontend
 HTML5
 CSS3
-JavaScript
+Vanilla JavaScript
 Fetch API
 Backend
 Python
@@ -156,22 +161,46 @@ Rule-based text processing
 Artificial Intelligence
 Google Gemini API
 Groq API
+📁 Project Structure
+ResumeIQ/
+│
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── app.js
+│
+├── backend/
+│   ├── main.py
+│   ├── resume_parser.py
+│   ├── ats_matcher.py
+│   ├── skill_gap.py
+│   ├── career_recommender.py
+│   │
+│   └── ai/
+│       ├── __init__.py
+│       ├── ai_service.py
+│       ├── gemini_client.py
+│       ├── career_ai.py
+│       └── groq_client.py
+│
+├── requirements.txt
+├── .env.example
+├── .gitignore
+└── README.md
 ⚙️ Installation
 1. Clone the repository
 git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd ResumeIQ
 2. Create a virtual environment
-
-Windows:
-
+Windows
 python -m venv .venv
 
 Activate it:
 
 .venv\Scripts\activate
-
-Linux / macOS:
-
+Linux / macOS
 python3 -m venv .venv
 source .venv/bin/activate
 3. Install dependencies
@@ -191,17 +220,166 @@ GROQ_MODEL=openai/gpt-oss-20b
 Do not commit .env to GitHub.
 
 ▶️ Running the Application
-
-Start the FastAPI backend:
-
+Start the FastAPI backend
 uvicorn backend.main:app --reload
 
 The backend will run at:
 
 http://127.0.0.1:8000
+Open the frontend
 
-Open the frontend:
+Open:
 
 frontend/index.html
 
-You can open the HTML file directly in the browser, or serve the frontend using a local web server.
+You can open the HTML file directly in the browser or serve the frontend using a local web server.
+
+🔌 API Endpoints
+Health Check
+GET /api/health
+
+Checks whether the backend is running.
+
+Resume Analysis
+POST /api/resume/analyze
+
+Uploads and analyzes a PDF resume.
+
+Returns:
+
+Resume score
+Candidate details
+Skills
+Sections
+Word count
+Score breakdown
+ATS Analysis
+POST /api/ats/analyze
+
+Inputs:
+
+Resume PDF
+Job description
+
+Returns:
+
+ATS score
+Matching skills
+Missing skills
+Matching keywords
+Missing keywords
+Score breakdown
+Skill Gap Analysis
+POST /api/skill-gap/analyze
+
+Inputs:
+
+Resume PDF
+Job description
+
+Returns:
+
+Required skills
+Matched skills
+Missing skills
+Skill coverage
+Development recommendations
+Career Recommendation
+POST /api/career/recommend
+
+Analyzes the resume and generates career recommendations using the career recommendation engine and Gemini AI.
+
+AI Assistant
+POST /api/assistant/chat
+
+Inputs:
+
+Resume PDF
+User question
+
+Returns an AI-generated answer based on the uploaded resume context.
+
+🔄 Application Workflow
+1. User uploads resume
+        ↓
+2. PDF text is extracted
+        ↓
+3. Resume information is parsed
+        ↓
+4. Resume score is calculated
+        ↓
+5. Skills and sections are detected
+        ↓
+6. User provides a target job description
+        ↓
+7. ATS compatibility is calculated
+        ↓
+8. Skill gaps are identified
+        ↓
+9. Career paths are recommended
+        ↓
+10. Gemini generates career intelligence
+        ↓
+11. User interacts with the AI Assistant
+🧠 AI Architecture
+
+ResumeIQ uses two AI providers for different purposes.
+
+Google Gemini
+
+Gemini is used for:
+
+Career intelligence
+Career summaries
+Skill recommendations
+Project recommendations
+Career roadmaps
+Final career advice
+Groq
+
+Groq is used for:
+
+Resume-aware conversational assistance
+Resume improvement questions
+Career questions
+Skill discussions
+Career guidance
+
+The core resume processing and scoring system does not depend entirely on generative AI. Resume extraction, parsing, skill detection, ATS matching, and career recommendation use application logic and rule-based processing.
+
+📊 Resume Scoring
+
+ResumeIQ calculates an overall resume score using multiple factors, including:
+
+Contact information
+Resume sections
+Skills
+Projects / experience
+Certifications / achievements
+
+The score is an analytical indicator created by ResumeIQ.
+
+It should not be considered an official score from a specific Applicant Tracking System (ATS).
+
+🔐 Security
+API keys are stored using environment variables.
+.env should not be committed to GitHub.
+Resume files are processed by the backend.
+Production deployments should use HTTPS.
+Authentication and proper data protection should be implemented before handling sensitive production data.
+⚠️ Current Limitations
+
+ResumeIQ is currently an MVP / portfolio-level application.
+
+Current limitations include:
+
+PDF extraction depends on selectable text.
+Scanned/image-only resumes require OCR, which is not currently implemented.
+Resume name detection may fail for some resume formats.
+ATS skill extraction is currently rule-based.
+Some job-description requirements may not be detected as skills.
+Keyword matching can include generic job-description terms.
+No user authentication system.
+No database or persistent resume history.
+No production job-search integration.
+No automated deployment pipeline.
