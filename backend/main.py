@@ -9,6 +9,9 @@ from backend.resume_parser import parse_resume
 from backend.ats_matcher import analyze_ats_match
 from backend.skill_gap import analyze_skill_gap
 
+from backend.career_recommender import (
+    analyze_career_recommendations
+)
 
 # ============================================================
 # FastAPI Application
@@ -388,3 +391,55 @@ async def analyze_skill_gap_api(
 
         "skill_gap": skill_gap_result
     }
+# =====================================================
+# MODULE 05 — AI CAREER RECOMMENDATIONS
+# =====================================================
+
+@app.post("/api/career/recommend")
+async def recommend_career(
+    file: UploadFile = File(...)
+):
+
+    try:
+
+        data = await file.read()
+
+        text, page_count = extract_text_and_page_count(
+            data
+        )
+
+        if not text.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="Could not extract text from resume."
+            )
+
+        # Extract resume skills
+        resume_skills = detect_skills(text)
+
+        # Generate career recommendations
+        result = analyze_career_recommendations(
+            resume_text=text,
+            resume_skills=resume_skills
+        )
+
+        return {
+            "success": True,
+
+            "resume": {
+                "skills": resume_skills,
+                "page_count": page_count
+            },
+
+            "career": result
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Career recommendation failed: {str(e)}"
+        )
