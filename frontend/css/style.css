@@ -263,3 +263,228 @@ footer { text-align:center; color:var(--muted); border-top:1px solid var(--borde
     }
 
 }
+
+/* =====================================================
+   SKILL GAP MODULE
+   ===================================================== */
+
+.skill-gap-section { padding-top: 80px; }
+.skill-gap-results { margin-top: 28px; }
+.skill-gap-overview {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.skill-gap-main-score, .career-hero-card, .career-advice {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(20,28,46,.9), rgba(10,15,27,.9));
+}
+.skill-gap-main-score strong {
+  display: block;
+  font-size: 52px;
+  margin: 4px 0;
+  background: linear-gradient(135deg,#a78bfa,#22d3ee);
+  color: transparent;
+  background-clip: text;
+}
+.skill-gap-main-score p { color: var(--muted); }
+.skill-gap-grid, .career-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.skills-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.skill-chip {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(139,92,246,.35);
+  background: rgba(139,92,246,.1);
+  color: #c9b9ff;
+  font-size: 13px;
+}
+.skill-chip.matched { border-color: rgba(34,211,238,.3); }
+.skill-chip.missing { border-color: rgba(255,120,120,.3); }
+.skill-gap-details { display: grid; gap: 12px; }
+.skill-gap-detail {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+}
+.skill-gap-detail-head, .career-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.skill-gap-detail h4 { margin-top: 3px; }
+.skill-gap-detail p { color: var(--muted); margin: 8px 0; }
+.learning-focus { color: #cdd3e1; font-size: 13px; }
+.priority-high, .priority-medium, .priority-low {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.priority-high { background: rgba(255,100,100,.12); color: #ff9b9b; }
+.priority-medium { background: rgba(255,190,80,.12); color: #ffd083; }
+.priority-low { background: rgba(100,220,160,.12); color: #9ae8bd; }
+
+/* =====================================================
+   CAREER MODULE
+   ===================================================== */
+
+.career-section, .assistant-section { padding-top: 80px; }
+.career-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(20,28,46,.9), rgba(10,15,27,.9));
+}
+.career-action-card h3 { margin: 5px 0; font-size: 23px; }
+.career-action-card p { color: var(--muted); max-width: 700px; }
+.career-status { min-height: 20px; }
+.career-results { margin-top: 25px; }
+.career-hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 18px;
+}
+.career-hero-card h3 { font-size: 34px; margin: 5px 0; }
+.career-hero-card p, .career-summary p, .career-advice p { color: var(--muted); }
+.career-hero-card > strong {
+  font-size: 58px;
+  white-space: nowrap;
+  background: linear-gradient(135deg,#a78bfa,#22d3ee);
+  color: transparent;
+  background-clip: text;
+}
+.career-summary { margin-bottom: 18px; }
+.career-list { display: grid; gap: 12px; }
+.career-list-item {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.career-list-item:first-child { border-top: 0; }
+.career-list-item p { color: var(--muted); margin-top: 5px; }
+.career-projects { display: grid; gap: 14px; }
+.career-project {
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 15px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+}
+.project-number { color: #a78bfa; font-weight: 800; }
+.career-project h4 { margin-bottom: 5px; }
+.career-project p { color: var(--muted); margin-bottom: 12px; }
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+.roadmap-grid > div {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+}
+.roadmap-grid > div > span {
+  color: #a78bfa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+.roadmap-grid ul { margin: 12px 0 0 18px; color: var(--muted); }
+.roadmap-grid li { margin: 8px 0; }
+.career-advice { margin-top: 18px; }
+
+/* =====================================================
+   GROQ ASSISTANT
+   ===================================================== */
+
+.assistant-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(20,28,46,.9), rgba(10,15,27,.9));
+  overflow: hidden;
+}
+.chat-messages {
+  min-height: 330px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chat-message {
+  max-width: 82%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.chat-message p { margin-top: 5px; white-space: pre-wrap; }
+.assistant-message {
+  align-self: flex-start;
+  background: rgba(139,92,246,.07);
+}
+.user-message {
+  align-self: flex-end;
+  background: rgba(34,211,238,.06);
+}
+.chat-role {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  color: #a78bfa;
+}
+.assistant-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 18px;
+  border-top: 1px solid var(--border);
+}
+#assistantQuestion {
+  resize: vertical;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.25);
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+#assistantQuestion:focus { border-color: rgba(139,92,246,.7); }
+
+@media (max-width: 900px) {
+  .skill-gap-overview { grid-template-columns: 1fr 1fr; }
+  .career-action-card { align-items: flex-start; flex-direction: column; }
+  .roadmap-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .skill-gap-grid, .career-grid { grid-template-columns: 1fr; }
+  .skill-gap-overview { grid-template-columns: 1fr; }
+  .career-hero-card { flex-direction: column; align-items: flex-start; }
+  .career-hero-card > strong { font-size: 45px; }
+  .assistant-input { grid-template-columns: 1fr; }
+  .chat-message { max-width: 95%; }
+}

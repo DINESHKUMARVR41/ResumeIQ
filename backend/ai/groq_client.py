@@ -8,9 +8,9 @@ load_dotenv()
 
 def generate_with_groq(prompt: str) -> str:
     """
-    Send a prompt to Groq.
+    Generate a response using Groq.
 
-    The client is created only when the function is called.
+    The API key and model are loaded from .env.
     """
 
     api_key = os.getenv("GROQ_API_KEY")
@@ -23,7 +23,7 @@ def generate_with_groq(prompt: str) -> str:
 
     model = os.getenv(
         "GROQ_MODEL",
-        "llama-3.3-70b-versatile"
+        "openai/gpt-oss-20b"
     )
 
     client = Groq(
@@ -36,8 +36,13 @@ def generate_with_groq(prompt: str) -> str:
             {
                 "role": "system",
                 "content": (
-                    "You are ResumeIQ, an expert AI "
-                    "career advisor."
+                    "You are ResumeIQ, an AI career assistant. "
+                    "You help users understand their resume, "
+                    "skills, career direction, ATS performance, "
+                    "skill gaps, projects and career roadmap. "
+                    "Use only the information provided in the "
+                    "resume context. Never invent experience, "
+                    "skills, achievements or qualifications."
                 )
             },
             {
@@ -47,6 +52,11 @@ def generate_with_groq(prompt: str) -> str:
         ],
         temperature=0.3
     )
+
+    if not response.choices:
+        raise RuntimeError(
+            "Groq returned no response choices."
+        )
 
     content = response.choices[0].message.content
 

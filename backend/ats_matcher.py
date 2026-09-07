@@ -297,6 +297,11 @@ def clean_keyword(keyword: str) -> str:
     keyword = re.sub(r"^[^a-z0-9+#]+", "", keyword)
     keyword = re.sub(r"[^a-z0-9+#./\-]+$", "", keyword)
 
+    # A trailing period is almost always sentence punctuation (e.g. "AWS.")
+    # rather than part of the term, so strip it even though "." is kept
+    # elsewhere to support terms like "node.js".
+    keyword = re.sub(r"\.$", "", keyword)
+
     # Normalize whitespace
     keyword = re.sub(r"\s+", " ", keyword)
 

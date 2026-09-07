@@ -1219,3 +1219,369 @@ function showATSStatus(
   );
 
 }
+
+// =====================================================
+// MODULE 04 — SKILL GAP
+// =====================================================
+
+const skillGapAnalyzeBtn = document.getElementById("skillGapAnalyzeBtn");
+const skillGapJobDescription = document.getElementById("skillGapJobDescription");
+const skillGapResults = document.getElementById("skillGapResults");
+const skillGapStatus = document.getElementById("skillGapStatus");
+
+if (skillGapAnalyzeBtn) {
+  skillGapAnalyzeBtn.addEventListener("click", analyzeSkillGap);
+}
+
+async function analyzeSkillGap() {
+  if (!selectedFile) {
+    showSkillGapStatus("Please upload a resume first.", true);
+    return;
+  }
+
+  const jobText = skillGapJobDescription?.value.trim() || "";
+  if (!jobText) {
+    showSkillGapStatus("Please enter a target job description.", true);
+    return;
+  }
+
+  skillGapAnalyzeBtn.disabled = true;
+  skillGapAnalyzeBtn.textContent = "Analyzing Skill Gap...";
+  showSkillGapStatus("Comparing your skills with the target role...", false);
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+  formData.append("job_description", jobText);
+
+  try {
+    const response = await fetch(`${API_URL}/api/skill-gap/analyze`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Skill gap analysis failed.");
+    }
+
+    renderSkillGapResults(data.skill_gap || data);
+
+    if (skillGapResults) {
+      skillGapResults.hidden = false;
+      skillGapResults.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    showSkillGapStatus("Skill gap analysis completed.", false);
+  } catch (error) {
+    console.error("Skill gap error:", error);
+    showSkillGapStatus(error.message || "Skill gap analysis failed.", true);
+  } finally {
+    skillGapAnalyzeBtn.disabled = false;
+    skillGapAnalyzeBtn.textContent = "Analyze Skill Gap";
+  }
+}
+
+function renderSkillGapResults(result) {
+  const coverage = Number(result?.coverage || 0);
+  const summary = safeObject(result?.summary);
+
+  document.getElementById("skillGapCoverage").textContent = `${Math.round(coverage)}%`;
+  document.getElementById("skillGapRequired").textContent = summary.required_skills ?? safeArray(result.required_skills).length;
+  document.getElementById("skillGapMatched").textContent = summary.matched_skills ?? safeArray(result.matched_skills).length;
+  document.getElementById("skillGapMissing").textContent = summary.missing_skills ?? safeArray(result.missing_skills).length;
+
+  const message = result?.coverage_message || getSkillGapMessage(coverage);
+  document.getElementById("skillGapCoverageMessage").textContent = message;
+
+  renderSkillChips("skillGapMatchedSkills", result?.matched_skills || [], "matched");
+  renderSkillChips("skillGapMissingSkills", result?.missing_skills || [], "missing");
+
+  const details = document.getElementById("skillGapDetails");
+  if (!details) return;
+  details.innerHTML = "";
+
+  const gaps = safeArray(result?.gaps);
+
+  if (!gaps.length) {
+    details.innerHTML = '<p class="empty">No significant skill gaps detected.</p>';
+    return;
+  }
+
+  gaps.forEach(gap => {
+    const item = document.createElement("div");
+    item.className = "skill-gap-detail";
+
+    const priority = String(gap.priority || "Medium").toLowerCase();
+    const badgeClass = priority === "high" ? "priority-high" : priority === "low" ? "priority-low" : "priority-medium";
+
+    item.innerHTML = `
+      <div class="skill-gap-detail-head">
+        <div>
+          <span class="metric-label">${escapeHTML(gap.category || "Skill")}</span>
+          <h4>${escapeHTML(gap.skill || "Unknown skill")}</h4>
+        </div>
+        <span class="${badgeClass}">${escapeHTML(gap.priority || "Medium")}</span>
+      </div>
+      <p>${escapeHTML(gap.reason || "This skill appears in the target requirements but was not detected in the resume.")}</p>
+      <div class="learning-focus"><b>Learning focus:</b> ${escapeHTML(gap.learning_focus || "Build practical knowledge and demonstrate it in a project.")}</div>
+    `;
+
+    details.appendChild(item);
+  });
+}
+
+function getSkillGapMessage(coverage) {
+  if (coverage >= 80) return "Excellent coverage. Focus on depth and evidence.";
+  if (coverage >= 60) return "Good coverage. A few targeted skills can strengthen your profile.";
+  if (coverage >= 40) return "Moderate coverage. Prioritize the high-value missing skills.";
+  return "Low coverage. Start with the highest-priority skills before applying.";
+}
+
+function showSkillGapStatus(message, isError) {
+  if (!skillGapStatus) return;
+  skillGapStatus.textContent = message;
+  skillGapStatus.classList.toggle("error", Boolean(isError));
+}
+
+
+// =====================================================
+// MODULE 05 — GEMINI CAREER INTELLIGENCE
+// =====================================================
+
+const careerAnalyzeBtn = document.getElementById("careerAnalyzeBtn");
+const careerResults = document.getElementById("careerResults");
+const careerStatus = document.getElementById("careerStatus");
+
+if (careerAnalyzeBtn) {
+  careerAnalyzeBtn.addEventListener("click", analyzeCareer);
+}
+
+async function analyzeCareer() {
+  if (!selectedFile) {
+    showCareerStatus("Please upload a resume first.", true);
+    return;
+  }
+
+  careerAnalyzeBtn.disabled = true;
+  careerAnalyzeBtn.textContent = "Gemini is analyzing...";
+  showCareerStatus("Building your personalized career analysis...", false);
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+
+  try {
+    const response = await fetch(`${API_URL}/api/career/recommend`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Career analysis failed.");
+    }
+
+    renderCareerResults(data.ai_analysis || {}, data.career_engine || {});
+
+    if (careerResults) {
+      careerResults.hidden = false;
+      careerResults.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    showCareerStatus("AI career analysis completed.", false);
+  } catch (error) {
+    console.error("Career AI error:", error);
+    showCareerStatus(error.message || "Career analysis failed.", true);
+  } finally {
+    careerAnalyzeBtn.disabled = false;
+    careerAnalyzeBtn.textContent = "Analyze Career with AI";
+  }
+}
+
+function renderCareerResults(ai, engine) {
+  const recommended = safeObject(ai.recommended_career);
+
+  document.getElementById("recommendedCareer").textContent = recommended.title || "Not available";
+  document.getElementById("careerReason").textContent = recommended.reason || "No recommendation reason returned.";
+  document.getElementById("careerFitScore").textContent = `${Number(recommended.fit_score || 0)}%`;
+  document.getElementById("careerSummary").textContent = ai.career_summary || "No summary returned.";
+
+  renderSkillChips("careerStrengths", safeArray(ai.current_strengths), "matched");
+  renderSkillChips("careerMissingSkills", safeArray(ai.missing_skills), "missing");
+
+  const recommendedSkills = document.getElementById("careerRecommendedSkills");
+  recommendedSkills.innerHTML = "";
+
+  safeArray(ai.recommended_skills).forEach(item => {
+    const row = document.createElement("div");
+    row.className = "career-list-item";
+    const priority = String(item.priority || "Medium").toLowerCase();
+    const badge = priority === "high" ? "priority-high" : priority === "low" ? "priority-low" : "priority-medium";
+    row.innerHTML = `
+      <div><strong>${escapeHTML(item.skill || "")}</strong><p>${escapeHTML(item.reason || "")}</p></div>
+      <span class="${badge}">${escapeHTML(item.priority || "Medium")}</span>
+    `;
+    recommendedSkills.appendChild(row);
+  });
+
+  const projects = document.getElementById("careerProjects");
+  projects.innerHTML = "";
+
+  safeArray(ai.recommended_projects).forEach((project, index) => {
+    const card = document.createElement("div");
+    card.className = "career-project";
+    card.innerHTML = `
+      <span class="project-number">0${index + 1}</span>
+      <div>
+        <h4>${escapeHTML(project.title || "Project")}</h4>
+        <p>${escapeHTML(project.description || "")}</p>
+        <div class="skills-list">${safeArray(project.skills).map(skill => `<span class="skill-chip">${escapeHTML(skill)}</span>`).join("")}</div>
+      </div>
+    `;
+    projects.appendChild(card);
+  });
+
+  const roadmap = safeObject(ai.roadmap);
+  renderRoadmap("roadmap30", roadmap.days_30);
+  renderRoadmap("roadmap60", roadmap.days_60);
+  renderRoadmap("roadmap90", roadmap.days_90);
+
+  document.getElementById("careerAdvice").textContent = ai.final_advice || "No final advice returned.";
+}
+
+function renderRoadmap(elementId, items) {
+  const container = document.getElementById(elementId);
+  if (!container) return;
+
+  container.innerHTML = "";
+  const list = safeArray(items);
+
+  if (!list.length) {
+    container.innerHTML = '<p class="empty">No roadmap items returned.</p>';
+    return;
+  }
+
+  const ul = document.createElement("ul");
+  list.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    ul.appendChild(li);
+  });
+  container.appendChild(ul);
+}
+
+function showCareerStatus(message, isError) {
+  if (!careerStatus) return;
+  careerStatus.textContent = message;
+  careerStatus.classList.toggle("error", Boolean(isError));
+}
+
+
+// =====================================================
+// MODULE 06 — GROQ AI ASSISTANT
+// =====================================================
+
+const assistantQuestion = document.getElementById("assistantQuestion");
+const assistantSendBtn = document.getElementById("assistantSendBtn");
+const chatMessages = document.getElementById("chatMessages");
+const assistantStatus = document.getElementById("assistantStatus");
+
+if (assistantSendBtn) {
+  assistantSendBtn.addEventListener("click", sendAssistantMessage);
+}
+
+if (assistantQuestion) {
+  assistantQuestion.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendAssistantMessage();
+    }
+  });
+}
+
+async function sendAssistantMessage() {
+  if (!selectedFile) {
+    showAssistantStatus("Please upload a resume first.", true);
+    return;
+  }
+
+  const question = assistantQuestion?.value.trim() || "";
+  if (!question) {
+    showAssistantStatus("Type a question first.", true);
+    return;
+  }
+
+  addChatMessage("You", question, "user");
+  assistantQuestion.value = "";
+  assistantSendBtn.disabled = true;
+  assistantSendBtn.textContent = "Thinking...";
+  showAssistantStatus("ResumeIQ is preparing an answer...", false);
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+  formData.append("question", question);
+
+  try {
+    const response = await fetch(`${API_URL}/api/assistant/chat`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Assistant request failed.");
+    }
+
+    addChatMessage("ResumeIQ", data.answer || "No answer returned.", "assistant");
+    showAssistantStatus("Answer generated.", false);
+  } catch (error) {
+    console.error("Assistant error:", error);
+    addChatMessage("ResumeIQ", `Sorry, I couldn't answer that: ${error.message}`, "assistant");
+    showAssistantStatus(error.message || "Assistant failed.", true);
+  } finally {
+    assistantSendBtn.disabled = false;
+    assistantSendBtn.textContent = "Ask ResumeIQ";
+  }
+}
+
+function addChatMessage(role, message, type) {
+  if (!chatMessages) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = `chat-message ${type}-message`;
+
+  const roleElement = document.createElement("span");
+  roleElement.className = "chat-role";
+  roleElement.textContent = role;
+
+  const textElement = document.createElement("p");
+  textElement.textContent = message;
+
+  wrapper.appendChild(roleElement);
+  wrapper.appendChild(textElement);
+  chatMessages.appendChild(wrapper);
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showAssistantStatus(message, isError) {
+  if (!assistantStatus) return;
+  assistantStatus.textContent = message;
+  assistantStatus.classList.toggle("error", Boolean(isError));
+}
+
+
+// =====================================================
+// SHARED HTML ESCAPING
+// =====================================================
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}

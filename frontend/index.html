@@ -13,6 +13,10 @@
     <nav>
       <a href="#home">Home</a>
       <a href="#analysis">Analysis</a>
+      <a href="#ats">ATS Match</a>
+      <a href="#skillGap">Skill Gap</a>
+      <a href="#career">Career AI</a>
+      <a href="#assistant">AI Assistant</a>
       <a href="#about">About</a>
     </nav>
     <button class="nav-button">Get Started</button>
@@ -35,7 +39,7 @@
         <div class="score-preview">AI</div>
         <div class="preview-row"><span>Resume Parsing</span><b>Ready</b></div>
         <div class="preview-row"><span>Skill Analysis</span><b>Ready</b></div>
-        <div class="preview-row"><span>ATS Analysis</span><b>Coming next</b></div>
+        <div class="preview-row"><span>ATS Analysis</span><b>Ready</b></div>
       </div>
     </section>
 
@@ -106,9 +110,9 @@
           <div class="pipeline-step"><i>01</i><span>PDF Extraction</span><b>Ready</b></div>
           <div class="pipeline-step"><i>02</i><span>Resume Parsing</span><b>Ready</b></div>
           <div class="pipeline-step"><i>03</i><span>Resume Analysis</span><b>Ready</b></div>
-          <div class="pipeline-step"><i>04</i><span>Skill Intelligence</span><b>Next</b></div>
-          <div class="pipeline-step"><i>05</i><span>ATS Evaluation</span><b>Planned</b></div>
-          <div class="pipeline-step"><i>06</i><span>AI Recommendations</span><b>Planned</b></div>
+          <div class="pipeline-step"><i>04</i><span>Skill Intelligence</span><b>Ready</b></div>
+          <div class="pipeline-step"><i>05</i><span>ATS Evaluation</span><b>Ready</b></div>
+          <div class="pipeline-step"><i>06</i><span>AI Career Intelligence</span><b>Ready</b></div>
         </div>
       </article>
     </section>
@@ -287,6 +291,144 @@
       </div>
   
   </section>
+
+    <section class="ats-section skill-gap-section" id="skillGap">
+      <div class="section-heading">
+        <span class="section-label">MODULE 04</span>
+        <h2>Skill Gap Analysis</h2>
+        <p>Discover what you already have, what the job requires, and what to learn next.</p>
+      </div>
+
+      <div class="ats-card">
+        <div class="ats-input-area">
+          <label for="skillGapJobDescription">Target Job Description</label>
+          <textarea id="skillGapJobDescription" placeholder="Paste the target job description here..." rows="9"></textarea>
+          <button id="skillGapAnalyzeBtn" class="primary-button" type="button">Analyze Skill Gap</button>
+          <p id="skillGapStatus" class="ats-status"></p>
+        </div>
+      </div>
+
+      <div id="skillGapResults" class="skill-gap-results" hidden>
+        <div class="skill-gap-overview">
+          <div class="skill-gap-main-score">
+            <span class="metric-label">SKILL COVERAGE</span>
+            <strong id="skillGapCoverage">0%</strong>
+            <p id="skillGapCoverageMessage">Your skill coverage will appear here.</p>
+          </div>
+          <div class="metric-card"><span>Required</span><strong id="skillGapRequired">0</strong></div>
+          <div class="metric-card"><span>Matched</span><strong id="skillGapMatched">0</strong></div>
+          <div class="metric-card"><span>Missing</span><strong id="skillGapMissing">0</strong></div>
+        </div>
+
+        <div class="skill-gap-grid">
+          <div class="panel">
+            <h3>Matched Skills</h3>
+            <div id="skillGapMatchedSkills" class="skills-list"></div>
+          </div>
+          <div class="panel">
+            <h3>Missing Skills</h3>
+            <div id="skillGapMissingSkills" class="skills-list"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><h3>Skill Development Plan</h3><span>Prioritized learning</span></div>
+          <div id="skillGapDetails" class="skill-gap-details"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ats-section career-section" id="career">
+      <div class="section-heading">
+        <span class="section-label">MODULE 05</span>
+        <h2>AI Career Intelligence</h2>
+        <p>Gemini turns your resume and career-match results into a personalized career roadmap.</p>
+      </div>
+
+      <div class="career-action-card">
+        <div>
+          <span class="metric-label">GEMINI CAREER ENGINE</span>
+          <h3>Find your strongest career direction</h3>
+          <p>Upload a resume above, then generate an evidence-based career recommendation, projects, skills and 90-day plan.</p>
+        </div>
+        <button id="careerAnalyzeBtn" class="primary-button" type="button">Analyze Career with AI</button>
+      </div>
+      <p id="careerStatus" class="ats-status"></p>
+
+      <div id="careerResults" class="career-results" hidden>
+        <div class="career-hero-card">
+          <div>
+            <span class="metric-label">BEST CAREER MATCH</span>
+            <h3 id="recommendedCareer">—</h3>
+            <p id="careerReason">—</p>
+          </div>
+          <strong id="careerFitScore">0%</strong>
+        </div>
+
+        <div class="career-summary panel">
+          <span class="metric-label">AI ASSESSMENT</span>
+          <p id="careerSummary">—</p>
+        </div>
+
+        <div class="career-grid">
+          <div class="panel">
+            <h3>Current Strengths</h3>
+            <div id="careerStrengths" class="skills-list"></div>
+          </div>
+          <div class="panel">
+            <h3>Skills to Develop</h3>
+            <div id="careerMissingSkills" class="skills-list"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><h3>Recommended Skills</h3><span>AI priorities</span></div>
+          <div id="careerRecommendedSkills" class="career-list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><h3>Recommended Projects</h3><span>Portfolio building</span></div>
+          <div id="careerProjects" class="career-projects"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><h3>90-Day Roadmap</h3><span>30 / 60 / 90 days</span></div>
+          <div class="roadmap-grid">
+            <div><span>30 DAYS</span><div id="roadmap30"></div></div>
+            <div><span>60 DAYS</span><div id="roadmap60"></div></div>
+            <div><span>90 DAYS</span><div id="roadmap90"></div></div>
+          </div>
+        </div>
+
+        <div class="career-advice">
+          <span class="metric-label">FINAL ADVICE</span>
+          <p id="careerAdvice">—</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ats-section assistant-section" id="assistant">
+      <div class="section-heading">
+        <span class="section-label">MODULE 06</span>
+        <h2>ResumeIQ AI Assistant</h2>
+        <p>Ask questions about your resume and get fast, resume-aware answers from Groq.</p>
+      </div>
+
+      <div class="assistant-card">
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-message assistant-message">
+            <span class="chat-role">ResumeIQ</span>
+            <p>Upload your resume, then ask me anything about your skills, projects, career direction or resume improvements.</p>
+          </div>
+        </div>
+        <div class="assistant-input">
+          <textarea id="assistantQuestion" rows="3" placeholder="Example: What should I improve in my resume?"></textarea>
+          <button id="assistantSendBtn" class="primary-button" type="button">Ask ResumeIQ</button>
+        </div>
+        <p id="assistantStatus" class="ats-status"></p>
+      </div>
+    </section>
+
   </main>
 
   <footer>ResumeIQ · AI Resume Intelligence</footer>
