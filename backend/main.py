@@ -6,7 +6,8 @@ from fastapi import (
     UploadFile,
     File,
     HTTPException,
-    Form
+    Form,
+    Body
 )
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +39,9 @@ from backend.ai.career_ai import (
 from backend.ai.ai_service import (
     ask_groq
 )
+
+from backend.report_generator import generate_report_pdf, report_filename
+from fastapi.responses import Response
 
 # ============================================================
 # FastAPI Application
@@ -669,3 +673,24 @@ USER QUESTION:
             status_code=500,
             detail=f"Assistant failed: {str(e)}"
         )
+
+
+# ============================================================
+# FULL RESUMEIQ PDF REPORT
+# ============================================================
+@app.post("/api/report/download")
+async def download_report(report_data: dict = Body(...)):
+    """Generate a PDF from analysis results already produced by ResumeIQ."""
+    try:
+        if not report_data.get("resumeAnalysis"):
+            raise HTTPException(status_code=400, detail="Please analyze a resume first.")
+        pdf_bytes = generate_report_pdf(report_data)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{report_filename(report_data)}"'},
+        )
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Unable to generate the report. Please try again.")

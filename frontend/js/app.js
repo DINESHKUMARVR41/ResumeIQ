@@ -11,6 +11,14 @@ const analyzeButton = document.getElementById("analyzeButton");
 const status = document.getElementById("status");
 
 let selectedFile = null;
+let resumeAnalysis = null;
+let atsAnalysis = null;
+let skillGapAnalysis = null;
+let careerAnalysis = null;
+let assistantMessages = [];
+
+const downloadReportButton = document.getElementById("downloadReportButton");
+const reportDownloadStatus = document.getElementById("reportDownloadStatus");
 
 
 // =====================================================
@@ -176,6 +184,12 @@ if (analyzeButton) {
       }
 
 
+      resumeAnalysis = data;
+      atsAnalysis = null;
+      skillGapAnalysis = null;
+      careerAnalysis = null;
+      assistantMessages = [];
+      setReportButtonEnabled(true);
       renderResults(data);
 
 
@@ -689,6 +703,7 @@ async function analyzeATS() {
     // Render result
     // -------------------------------------------------
 
+    atsAnalysis = ats;
     renderATSResults(
       ats
     );
@@ -1265,7 +1280,8 @@ async function analyzeSkillGap() {
       throw new Error(data.detail || "Skill gap analysis failed.");
     }
 
-    renderSkillGapResults(data.skill_gap || data);
+    skillGapAnalysis = data.skill_gap || data;
+    renderSkillGapResults(skillGapAnalysis);
 
     if (skillGapResults) {
       skillGapResults.hidden = false;
@@ -1382,7 +1398,8 @@ async function analyzeCareer() {
       throw new Error(data.detail || "Career analysis failed.");
     }
 
-    renderCareerResults(data.ai_analysis || {}, data.career_engine || {});
+    careerAnalysis = { ai_analysis: data.ai_analysis || {}, career_engine: data.career_engine || {} };
+    renderCareerResults(careerAnalysis.ai_analysis, careerAnalysis.career_engine);
 
     if (careerResults) {
       careerResults.hidden = false;
@@ -1534,7 +1551,9 @@ async function sendAssistantMessage() {
       throw new Error(data.detail || "Assistant request failed.");
     }
 
-    addChatMessage("ResumeIQ", data.answer || "No answer returned.", "assistant");
+    const answer = data.answer || "No answer returned.";
+    addChatMessage("ResumeIQ", answer, "assistant");
+    assistantMessages.push({ role: "user", content: question }, { role: "assistant", content: answer });
     showAssistantStatus("Answer generated.", false);
   } catch (error) {
     console.error("Assistant error:", error);
@@ -1584,4 +1603,59 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+
+// =====================================================
+// FULL REPORT DOWNLOAD
+// =====================================================
+function setReportButtonEnabled(enabled) {
+  if (!downloadReportButton) return;
+  downloadReportButton.disabled = !enabled;
+  if (reportDownloadStatus) {
+    reportDownloadStatus.textContent = enabled
+      ? "Your report is ready to download."
+      : "Complete resume analysis to enable the report.";
+  }
+}
+
+if (downloadReportButton) {
+  downloadReportButton.addEventListener("click", async () => {
+    if (!resumeAnalysis || !selectedFile) {
+      if (reportDownloadStatus) reportDownloadStatus.textContent = "Please analyze a resume first.";
+      return;
+    }
+    downloadReportButton.disabled = true;
+    downloadReportButton.textContent = "Generating PDF...";
+    if (reportDownloadStatus) reportDownloadStatus.textContent = "Preparing your full ResumeIQ report...";
+    try {
+      const response = await fetch(`${API_URL}/api/report/download`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeAnalysis, atsAnalysis, skillGapAnalysis, careerAnalysis, assistantMessages, resumeFilename: selectedFile.name })
+      });
+      if (!response.ok) {
+        throw new Error("Unable to generate the report. Please try again.");
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^";]+)"?/i);
+      const filename = match ? match[1] : "ResumeIQ_Report.pdf";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      if (reportDownloadStatus) reportDownloadStatus.textContent = "Report downloaded successfully.";
+    } catch (error) {
+      console.error("Report download error:", error);
+      if (reportDownloadStatus) reportDownloadStatus.textContent = "Unable to generate the report. Please try again.";
+    } finally {
+      downloadReportButton.disabled = false;
+      downloadReportButton.textContent = "📥 Download Full Report";
+    }
+  });
 }

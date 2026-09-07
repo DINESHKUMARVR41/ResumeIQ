@@ -383,3 +383,14 @@ No user authentication system.
 No database or persistent resume history.
 No production job-search integration.
 No automated deployment pipeline.
+
+
+### Downloadable ResumeIQ Report
+
+After resume analysis, ResumeIQ provides a **📥 Download Full Report** button that generates a professional PDF containing available resume analysis, score, skills, ATS analysis, skill gaps, career recommendations, Gemini career intelligence, and relevant AI assistant information.
+
+The report is generated from results already produced by the application.
+
+**Report technology:** ReportLab
+
+**Endpoint:** `POST /api/report/download`

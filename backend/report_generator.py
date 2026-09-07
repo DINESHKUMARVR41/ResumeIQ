@@ -401,3 +401,14 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
 
     doc.build(story)
     return buffer.getvalue()
+
+
+def report_filename(report_data: Dict[str, Any]) -> str:
+    resume = _obj(report_data.get("resumeAnalysis"))
+    candidate = _obj(resume.get("candidate"))
+    name = _safe(candidate.get("name"))
+    if name:
+        safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", name).strip("._-")
+        if safe_name:
+            return f"ResumeIQ_{safe_name}_Report.pdf"
+    return "ResumeIQ_Report.pdf"
