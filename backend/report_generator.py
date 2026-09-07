@@ -69,11 +69,23 @@ def _footer(canvas, doc):
     canvas.restoreState()
 
 
-def _bullet_list(items: Iterable[Any], styles: dict, empty_text: str = "Not available") -> list:
+def _bullet_list(
+    items: Iterable[Any] | None,
+    styles: dict,
+    empty_text: str = "Not available"
+) -> list:
+    if not items:
+        return [Paragraph(empty_text, styles["Muted"])]
+
     values = [_safe(item) for item in items if _safe(item)]
+
     if not values:
         return [Paragraph(empty_text, styles["Muted"])]
-    return [Paragraph(f"• {_escape(v)}", styles["BodySmall"]) for v in values]
+
+    return [
+        Paragraph(f"• {_escape(v)}", styles["BodySmall"])
+        for v in values
+    ]
 
 
 def _escape(value: str) -> str:

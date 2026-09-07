@@ -1621,41 +1621,141 @@ function setReportButtonEnabled(enabled) {
 
 if (downloadReportButton) {
   downloadReportButton.addEventListener("click", async () => {
-    if (!resumeAnalysis || !selectedFile) {
-      if (reportDownloadStatus) reportDownloadStatus.textContent = "Please analyze a resume first.";
+    console.log("ResumeIQ: Download Full Report clicked");
+
+    if (!resumeAnalysis) {
+      reportDownloadStatus.textContent =
+        "Please analyze your resume first.";
+      console.error("ResumeIQ: resumeAnalysis is missing");
       return;
     }
+
+    if (!selectedFile) {
+      reportDownloadStatus.textContent =
+        "Please select a resume first.";
+      console.error("ResumeIQ: selectedFile is missing");
+      return;
+    }
+
     downloadReportButton.disabled = true;
     downloadReportButton.textContent = "Generating PDF...";
-    if (reportDownloadStatus) reportDownloadStatus.textContent = "Preparing your full ResumeIQ report...";
+    reportDownloadStatus.textContent =
+      "Generating your full report...";
+
     try {
-      const response = await fetch(`${API_URL}/api/report/download`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumeAnalysis, atsAnalysis, skillGapAnalysis, careerAnalysis, assistantMessages, resumeFilename: selectedFile.name })
-      });
+      const payload = {
+        resumeAnalysis,
+        atsAnalysis,
+        skillGapAnalysis,
+        careerAnalysis,
+        assistantMessages,
+        resumeFilename: selectedFile.name
+      };
+
+      console.log("ResumeIQ: Sending report request");
+
+      const response = await fetch(
+        `${API_URL}/api/report/download`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      console.log(
+        "ResumeIQ: Report response",
+        response.status,
+        response.headers.get("content-type")
+      );
+
       if (!response.ok) {
-        throw new Error("Unable to generate the report. Please try again.");
+        let errorMessage = `HTTP ${response.status}`;
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch {
+          const text = await response.text();
+          if (text) {
+            errorMessage = text;
+          }
+        }
+
+        throw new Error(errorMessage);
       }
+
+      const contentType =
+        response.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/pdf")) {
+        const text = await response.text();
+        throw new Error(
+          `Backend did not return a PDF. Response: ${text.substring(0, 300)}`
+        );
+      }
+
       const blob = await response.blob();
+
+      if (!blob || blob.size === 0) {
+        throw new Error("Generated PDF is empty.");
+      }
+
+      console.log(
+        "ResumeIQ: PDF received:",
+        blob.size,
+        "bytes"
+      );
+
+      let filename = "ResumeIQ_Report.pdf";
       const disposition = response.headers.get("Content-Disposition") || "";
-      const match = disposition.match(/filename="?([^";]+)"?/i);
-      const filename = match ? match[1] : "ResumeIQ_Report.pdf";
-      const url = URL.createObjectURL(blob);
+
+      if (disposition) {
+        const match = disposition.match(/filename="?([^"]+)"?/i);
+
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+
+      const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = url;
+
+      link.href = blobUrl;
       link.download = filename;
+      link.style.display = "none";
+
       document.body.appendChild(link);
+
+      console.log(
+        "ResumeIQ: Starting browser download:",
+        filename
+      );
+
       link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      if (reportDownloadStatus) reportDownloadStatus.textContent = "Report downloaded successfully.";
+
+      document.body.removeChild(link);
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1000);
+
+      reportDownloadStatus.textContent =
+        "Report downloaded successfully.";
     } catch (error) {
-      console.error("Report download error:", error);
-      if (reportDownloadStatus) reportDownloadStatus.textContent = "Unable to generate the report. Please try again.";
+      console.error(
+        "ResumeIQ: Report download failed:",
+        error
+      );
+
+      reportDownloadStatus.textContent =
+        `Report download failed: ${error.message}`;
     } finally {
       downloadReportButton.disabled = false;
-      downloadReportButton.textContent = "📥 Download Full Report";
+      downloadReportButton.textContent =
+        "📥 Download Full Report";
     }
   });
 }

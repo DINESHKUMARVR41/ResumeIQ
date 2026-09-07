@@ -685,12 +685,19 @@ async def download_report(report_data: dict = Body(...)):
         if not report_data.get("resumeAnalysis"):
             raise HTTPException(status_code=400, detail="Please analyze a resume first.")
         pdf_bytes = generate_report_pdf(report_data)
+        if not pdf_bytes:
+            raise HTTPException(status_code=500, detail="PDF generation returned empty data.")
+        filename = report_filename(report_data)
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{report_filename(report_data)}"'},
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            },
         )
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="Unable to generate the report. Please try again.")
+    except Exception as e:
+        print("REPORT GENERATION ERROR:", repr(e))
+        raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}")
