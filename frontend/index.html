@@ -122,6 +122,171 @@
         will be added as separate modules.
       </p>
     </section>
+    <section class="ats-section" id="ats">
+      <div class="section-heading">
+          <span class="section-label">MODULE 03</span>
+          <h2>ATS Resume Matching</h2>
+          <p>
+              Compare your resume with a specific job description
+              and identify your strengths and skill gaps.
+          </p>
+      </div>
+  
+      <div class="ats-card">
+  
+          <div class="ats-input-area">
+              <label for="jobDescription">
+                  Job Description
+              </label>
+  
+              <textarea
+                  id="jobDescription"
+                  placeholder="Paste the job description here..."
+                  rows="10"
+              ></textarea>
+  
+              <button
+                  id="atsAnalyzeBtn"
+                  class="primary-btn"
+                  type="button"
+              >
+                  Analyze ATS Match
+              </button>
+  
+              <p id="atsStatus" class="ats-status"></p>
+          </div>
+  
+      </div>
+  
+  
+      <div
+          id="atsResults"
+          class="ats-results"
+          hidden
+      >
+  
+          <div class="ats-score-card">
+  
+              <div>
+                  <span class="metric-label">
+                      ATS MATCH SCORE
+                  </span>
+  
+                  <div
+                      id="atsScore"
+                      class="ats-score"
+                  >
+                      0
+                  </div>
+              </div>
+  
+              <div class="ats-score-description">
+                  <h3>Resume compatibility</h3>
+  
+                  <p id="atsScoreMessage">
+                      Your resume match will appear here.
+                  </p>
+              </div>
+  
+          </div>
+  
+  
+          <div class="ats-metrics">
+  
+              <div class="metric-card">
+                  <span>Matching Skills</span>
+                  <strong id="matchingSkillsCount">0</strong>
+              </div>
+  
+              <div class="metric-card">
+                  <span>Missing Skills</span>
+                  <strong id="missingSkillsCount">0</strong>
+              </div>
+  
+              <div class="metric-card">
+                  <span>Keywords Matched</span>
+                  <strong id="matchedKeywordsCount">0</strong>
+              </div>
+  
+          </div>
+  
+  
+          <div class="ats-grid">
+  
+              <div class="panel">
+                  <h3>Matching Skills</h3>
+  
+                  <div
+                      id="matchingSkills"
+                      class="skills-list"
+                  ></div>
+              </div>
+  
+  
+              <div class="panel">
+                  <h3>Missing Skills</h3>
+  
+                  <div
+                      id="missingSkills"
+                      class="skills-list"
+                  ></div>
+              </div>
+  
+  
+              <div class="panel">
+                  <h3>Resume-Only Skills</h3>
+  
+                  <div
+                      id="resumeOnlySkills"
+                      class="skills-list"
+                  ></div>
+              </div>
+  
+  
+              <div class="panel">
+                  <h3>Keyword Analysis</h3>
+  
+                  <div class="keyword-group">
+  
+                      <h4>Matched</h4>
+  
+                      <div
+                          id="matchedKeywords"
+                          class="skills-list"
+                      ></div>
+  
+                  </div>
+  
+                  <div class="keyword-group">
+  
+                      <h4>Missing</h4>
+  
+                      <div
+                          id="missingKeywords"
+                          class="skills-list"
+                      ></div>
+  
+                  </div>
+  
+              </div>
+  
+          </div>
+  
+  
+          <div class="panel ats-breakdown">
+  
+              <h3>ATS Score Breakdown</h3>
+  
+              <div
+                  id="atsScoreBreakdown"
+                  class="score-breakdown"
+              ></div>
+  
+          </div>
+  
+      </div>
+  
+  </section>
   </main>
 
   <footer>ResumeIQ · AI Resume Intelligence</footer>
