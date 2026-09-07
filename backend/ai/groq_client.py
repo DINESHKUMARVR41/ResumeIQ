@@ -1,50 +1,58 @@
 import os
 
-from groq import Groq
 from dotenv import load_dotenv
-
+from groq import Groq
 
 load_dotenv()
 
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+def generate_with_groq(prompt: str) -> str:
+    """
+    Send a prompt to Groq.
 
-GROQ_MODEL = os.getenv(
-    "GROQ_MODEL",
-    "llama-3.3-70b-versatile"
-)
+    The client is created only when the function is called.
+    """
 
+    api_key = os.getenv("GROQ_API_KEY")
 
-if not GROQ_API_KEY:
-    raise RuntimeError(
-        "GROQ_API_KEY is not configured."
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not configured. "
+            "Add it to your .env file."
+        )
+
+    model = os.getenv(
+        "GROQ_MODEL",
+        "llama-3.3-70b-versatile"
     )
 
-
-client = Groq(
-    api_key=GROQ_API_KEY
-)
-
-
-def generate_with_groq(
-    prompt: str
-) -> str:
+    client = Groq(
+        api_key=api_key
+    )
 
     response = client.chat.completions.create(
-
-        model=GROQ_MODEL,
-
+        model=model,
         messages=[
             {
                 "role": "system",
-                "content":
-                    "You are ResumeIQ, an expert AI career advisor."
+                "content": (
+                    "You are ResumeIQ, an expert AI "
+                    "career advisor."
+                )
             },
             {
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        temperature=0.3
     )
 
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+
+    if not content:
+        raise RuntimeError(
+            "Groq returned an empty response."
+        )
+
+    return content

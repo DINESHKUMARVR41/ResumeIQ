@@ -1,38 +1,44 @@
 import os
 
-from google import genai
 from dotenv import load_dotenv
-
+from google import genai
 
 load_dotenv()
 
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+def generate_with_gemini(prompt: str) -> str:
+    """
+    Send a prompt to Google Gemini.
 
-GEMINI_MODEL = os.getenv(
-    "GEMINI_MODEL",
-    "gemini-2.5-flash"
-)
+    The client is created only when this function is called,
+    so the FastAPI server can start even if the API key is missing.
+    """
 
+    api_key = os.getenv("GEMINI_API_KEY")
 
-if not GEMINI_API_KEY:
-    raise RuntimeError(
-        "GEMINI_API_KEY is not configured."
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not configured. "
+            "Add it to your .env file."
+        )
+
+    model = os.getenv(
+        "GEMINI_MODEL",
+        "gemini-2.5-flash"
     )
 
-
-client = genai.Client(
-    api_key=GEMINI_API_KEY
-)
-
-
-def generate_with_gemini(
-    prompt: str
-) -> str:
+    client = genai.Client(
+        api_key=api_key
+    )
 
     response = client.models.generate_content(
-        model=GEMINI_MODEL,
+        model=model,
         contents=prompt
     )
+
+    if not response.text:
+        raise RuntimeError(
+            "Gemini returned an empty response."
+        )
 
     return response.text

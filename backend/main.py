@@ -1,16 +1,37 @@
 from io import BytesIO
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File,
+    HTTPException,
+    Form
+)
+
 from fastapi.middleware.cors import CORSMiddleware
+
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
-from backend.resume_parser import parse_resume
-from backend.ats_matcher import analyze_ats_match
-from backend.skill_gap import analyze_skill_gap
+from backend.resume_parser import (
+    parse_resume,
+    detect_skills
+)
+
+from backend.ats_matcher import (
+    analyze_ats_match
+)
+
+from backend.skill_gap import (
+    analyze_skill_gap
+)
 
 from backend.career_recommender import (
     analyze_career_recommendations
+)
+
+from backend.ai.career_ai import (
+    generate_career_analysis
 )
 
 # ============================================================
@@ -391,37 +412,105 @@ async def analyze_skill_gap_api(
 
         "skill_gap": skill_gap_result
     }
-# =====================================================
+# ============================================================
 # MODULE 05 — AI CAREER RECOMMENDATIONS
-# =====================================================
+# ============================================================
 
 @app.post("/api/career/recommend")
 async def recommend_career(
     file: UploadFile = File(...)
 ):
+    """
+    Generate deterministic career recommendations
+    and enhance them using Gemini AI.
+    """
 
     try:
 
+        # ----------------------------------------------------
+        # Validate file
+        # ----------------------------------------------------
+
+        if not file.filename:
+            raise HTTPException(
+                status_code=400,
+                detail="No resume selected."
+            )
+
+        if not file.filename.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=400,
+                detail="Please upload a PDF resume."
+            )
+
+        # ----------------------------------------------------
+        # Read file
+        # ----------------------------------------------------
+
         data = await file.read()
 
-        text, page_count = extract_text_and_page_count(
-            data
+        if not data:
+            raise HTTPException(
+                status_code=400,
+                detail="The uploaded resume is empty."
+            )
+
+        # ----------------------------------------------------
+        # Extract text
+        # ----------------------------------------------------
+
+        text, page_count = (
+            extract_text_and_page_count(data)
         )
 
         if not text.strip():
             raise HTTPException(
-                status_code=400,
-                detail="Could not extract text from resume."
+                status_code=422,
+                detail=(
+                    "No selectable text was found in "
+                    "the PDF."
+                )
             )
 
-        # Extract resume skills
-        resume_skills = detect_skills(text)
+        # ----------------------------------------------------
+        # Detect skills
+        # ----------------------------------------------------
 
-        # Generate career recommendations
-        result = analyze_career_recommendations(
-            resume_text=text,
-            resume_skills=resume_skills
+        resume_skills = detect_skills(
+            text
         )
+
+        # ----------------------------------------------------
+        # Deterministic career engine
+        # ----------------------------------------------------
+
+        career_result = (
+            analyze_career_recommendations(
+                resume_text=text,
+                resume_skills=resume_skills
+            )
+        )
+
+        career_candidates = (
+            career_result.get(
+                "recommendations",
+                []
+            )
+        )
+
+        # ----------------------------------------------------
+        # Gemini intelligence layer
+        # ----------------------------------------------------
+
+        ai_analysis = generate_career_analysis(
+            resume_text=text,
+            resume_skills=resume_skills,
+            career_candidates=career_candidates
+        )
+
+        # ----------------------------------------------------
+        # Return result
+        # ----------------------------------------------------
 
         return {
             "success": True,
@@ -431,15 +520,27 @@ async def recommend_career(
                 "page_count": page_count
             },
 
-            "career": result
+            "career_engine": career_result,
+
+            "ai_analysis": ai_analysis
         }
 
     except HTTPException:
         raise
 
+    except RuntimeError as e:
+
+        raise HTTPException(
+            status_code=503,
+            detail=str(e)
+        )
+
     except Exception as e:
 
         raise HTTPException(
             status_code=500,
-            detail=f"Career recommendation failed: {str(e)}"
+            detail=(
+                "Career recommendation failed: "
+                f"{str(e)}"
+            )
         )
