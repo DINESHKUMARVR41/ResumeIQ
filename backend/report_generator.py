@@ -43,13 +43,51 @@ def _obj(value: Any) -> dict:
     return value if isinstance(value, dict) else {}
 
 
+def _resume_data(report_data: Dict[str, Any]) -> dict:
+    resume_analysis = _obj(report_data.get("resumeAnalysis"))
+    if "resume" in resume_analysis:
+        return _obj(resume_analysis.get("resume"))
+    return resume_analysis
+
+
+def _score_data(resume: dict) -> dict:
+    score = resume.get("score")
+    if isinstance(score, dict):
+        return score
+    if score not in (None, ""):
+        return {"total": score}
+
+    metrics = _obj(resume.get("metrics"))
+    overall = metrics.get("overall_score", metrics.get("score"))
+    return {"total": overall} if overall not in (None, "") else {}
+
+
+def _list_or_nested(value: Any, *keys: str) -> list:
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        for key in keys:
+            items = value.get(key)
+            if isinstance(items, list):
+                return items
+    return []
+
+
+def _count_or_length(value: Any) -> int:
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value)
+    return 0
+
+
 def _clean_filename(name: str) -> str:
     name = re.sub(r"[^A-Za-z0-9._-]+", "_", name or "")
     return name.strip("._-") or "Candidate"
 
 
 def get_report_filename(report_data: Dict[str, Any]) -> str:
-    candidate = _obj(_obj(report_data.get("resumeAnalysis")).get("candidate"))
+    candidate = _obj(_resume_data(report_data).get("candidate"))
     name = _safe(candidate.get("name"))
     if name and name.lower() not in {"not detected", "unknown"}:
         return f"ResumeIQ_{_clean_filename(name)}_Report.pdf"
@@ -130,9 +168,10 @@ def _table(rows, styles, widths=None):
 def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
     """Generate a PDF using only the supplied, already-computed ResumeIQ data."""
 
-    resume = _obj(report_data.get("resumeAnalysis"))
+    resume = _resume_data(report_data)
     candidate = _obj(resume.get("candidate"))
-    score = _obj(resume.get("score"))
+    metrics = _obj(resume.get("metrics"))
+    score = _score_data(resume)
     breakdown = _obj(score.get("breakdown"))
     ats = _obj(report_data.get("atsAnalysis"))
     skill_gap = _obj(report_data.get("skillGapAnalysis"))
@@ -141,7 +180,10 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
     engine = _obj(career.get("career_engine"))
     assistant_messages = _items(report_data.get("assistantMessages"))
     filename = _safe(report_data.get("resumeFilename")) or _safe(_obj(report_data.get("file")).get("filename"))
-    page_count = resume.get("page_count") or _obj(report_data.get("file")).get("pages") or ""
+    skills = _list_or_nested(resume.get("skills"), "items", "values", "detected")
+    sections = resume.get("sections", metrics.get("sections"))
+    word_count = resume.get("word_count", metrics.get("word_count"))
+    page_count = resume.get("page_count") or metrics.get("page_count") or _obj(report_data.get("file")).get("pages") or ""
     generation_date = datetime.now().strftime("%d %B %Y")
 
     styles = getSampleStyleSheet()
@@ -185,9 +227,9 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
     story.extend(_section_title("1. Resume Overview", styles))
     metrics = [
         [_safe(score.get("total")) or "0", "Overall Score"],
-        [str(len(_items(resume.get("skills")))), "Skills Found"],
-        [_safe(resume.get("word_count")) or "0", "Word Count"],
-        [str(len(_items(resume.get("sections")))), "Sections"],
+        [str(_count_or_length(skills)), "Skills Found"],
+        [_safe(word_count) or "0", "Word Count"],
+        [str(_count_or_length(sections)), "Sections"],
         [_safe(page_count) or "Not available", "Page Count"],
     ]
     metric_table = Table([[Paragraph(_escape(v), styles["Metric"]), Paragraph(_escape(label), styles["MetricLabel"])] for v, label in metrics], colWidths=[28 * mm, 32 * mm] * 0 + [34 * mm, 34 * mm, 34 * mm, 34 * mm, 34 * mm], hAlign="LEFT")
@@ -223,7 +265,7 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
 
     # 4. Skills
     story.extend(_section_title("3. Detected Skills", styles))
-    story.extend(_bullet_list(resume.get("skills"), styles, "No skills detected."))
+    story.extend(_bullet_list(skills, styles, "No skills detected."))
 
     # 5. ATS
     story.extend(_section_title("4. ATS Analysis", styles))
@@ -365,10 +407,10 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
     strengths = []
     if score.get("total") not in (None, ""):
         strengths.append(f"Overall resume score: {_safe(score.get('total'))}/100.")
-    if _items(resume.get("skills")):
-        strengths.append(f"Detected {_safe(len(_items(resume.get('skills'))))} skills.")
-    if _items(resume.get("sections")):
-        strengths.append(f"Detected {_safe(len(_items(resume.get('sections'))))} resume sections.")
+    if skills:
+        strengths.append(f"Detected {_safe(len(skills))} skills.")
+    if _count_or_length(sections):
+        strengths.append(f"Detected {_safe(_count_or_length(sections))} resume sections.")
     ai_strengths = _items(ai.get("current_strengths"))
     if ai_strengths:
         strengths.extend(_safe(v) for v in ai_strengths[:4] if _safe(v))
@@ -416,7 +458,7 @@ def generate_report_pdf(report_data: Dict[str, Any]) -> bytes:
 
 
 def report_filename(report_data: Dict[str, Any]) -> str:
-    resume = _obj(report_data.get("resumeAnalysis"))
+    resume = _resume_data(report_data)
     candidate = _obj(resume.get("candidate"))
     name = _safe(candidate.get("name"))
     if name:
